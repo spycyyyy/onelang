@@ -1,6 +1,11 @@
 ## T R Y !
+Simply type this to the command prompt when you in the same path as source file (lang.cpp)
 ```
  g++ lang.cpp -o lang.exe
+```
+then run by 
+```
+lang.exe
 ```
 ## W H A T
 * [X] Condensing everything on a single array (includes both condition block and memory block)
