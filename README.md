@@ -1,3 +1,7 @@
+## T R Y !
+```
+ g++ lang.cpp -o lang.exe
+```
 ## W H A T
 * [X] Condensing everything on a single array (includes both condition block and memory block)
 * [X] Interact by typing commands into the block. (APL language)
