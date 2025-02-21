@@ -11,7 +11,7 @@
 |---------------|-----------------------------------------------------------------------------|
 | **Registers** | The program uses a set of registers (`r`) to store values. Registers are indexed from 0 to 15. |
 | **Memory**    | The program uses a stack memory (`mem`) to store values. Memory is indexed from 0 to 255. |
-| **Operators** |                                                                             |
+| **Operators**                                                                               |
 | Arithmetic    | `+`, `-`, `*`, `/`, `^`                                                     |
 | Comparison    | `>`, `<`                                                                    |
 | Logical       | `&`, `|`                                                                    |
