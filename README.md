@@ -1,7 +1,7 @@
 ## W H A T
 * [X] Condensing everything on a single array (includes both condition block and memory block)
 * [X] Interact by typing commands into the block. (APL language)
-* [ ] accept other type list [ ], string " " and loop .~.
+* [ ] accept other type list {} , string " " and loop .~.
 * [ ] express everything in the form a dictionary
 * [ ] figure out how to kick start the program
 * [ ] +
@@ -11,7 +11,6 @@
 |---------------|-----------------------------------------------------------------------------|
 | **Registers** | The program uses a set of registers (`r`) to store values. Registers are indexed from 0 to 15. |
 | **Memory**    | The program uses a stack memory (`mem`) to store values. Memory is indexed from 0 to 255. |
-| **Operators**                                                                               |
 | Arithmetic    | `+`, `-`, `*`, `/`, `^`                                                     |
 | Comparison    | `>`, `<`                                                                    |
 | Logical       | `&`, `|`                                                                    |
