@@ -1,10 +1,10 @@
 ## W H A T
 * [X] Condensing everything on a single array (includes both condition block and memory block)
 * [X] Interact by typing commands into the block. (APL language)
-* [ ] Fast creation of list, string and loop
+* [ ] accept other type list [ ], string " " and loop .~.
 * [ ] express everything in the form a dictionary
 * [ ] figure out how to kick start the program
-* [ ] ~
+* [ ] +
 
 ## Custom Mathematical Expression Language
 | Feature       | Description                                                                 |
