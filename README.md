@@ -1,9 +1,10 @@
 ## T R Y !
-Simply type this to the command prompt when you in the same path as source file (lang.cpp)
+1. Download file lang.cpp
+2. Simply type this to the command prompt when you in the same path as source file (lang.cpp)
 ```
  g++ lang.cpp -o lang.exe
 ```
-then run by 
+3. then run by 
 ```
 lang.exe
 ```
