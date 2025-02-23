@@ -33,7 +33,7 @@ string sym_expr = "+-<>&|";
 string sym_term = "*/^";
 string sym_fact = ".()#![]~{}";
 
-
+bool isskip = false;
 bool check(string format, char c){
     return format.find(c) != string::npos;
 }
@@ -41,11 +41,19 @@ bool check(string format, char c){
 // Recursive descent parser for factors in mathematical expressions
 double parseFactor(string expression, size_t& pos) {
 
-    if (expression[pos] == '#') {
+    if (expression[pos] == '~') {
+        pos++;
+        double result = parseFactor(expression, pos);
+        //if(result > r_size - 1){ throw runtime_error("Register overflow.");}
+        isskip = true;
+        return result;
+
+    } else if (expression[pos] == '#') {
         pos++;
         double result = parseFactor(expression, pos);
         //if(result > r_size - 1){ throw runtime_error("Register overflow.");}
         r[0] = result;
+        //isskip = true;
         return mem[result];
 
     } else if (expression[pos] == '{') {
@@ -91,7 +99,6 @@ double parseFactor(string expression, size_t& pos) {
         return atof(expression.substr(start, pos - start).c_str());
     }
 }
-
 // Recursive descent parser for terms in mathematical expressions
 double parseTerm(string expression, size_t& pos) {
     double result = parseFactor(expression, pos);
@@ -148,20 +155,32 @@ double compute(string expression) {
 }
 
 int main() {
-    bool repeat = true;
+    bool repeat = true; double result;
     mem[0] = 255; // maximum size of memory
-    while (repeat) {                
-        r[0] ++;
-        cout <<"[" <<r[0]<<"] :";
+    while (repeat) {  
+        // only move the stack pointer without changing the memory
+        if(isskip){
+            isskip = false;
+            cout << "~"; 
+            r[0] = result;
+        }
+        else{
+            r[0] ++;
+        }            
+        cout <<"[" <<r[0]<<"]? ";
         string expression;
         cin >> expression;
         if (expression == "q") {
             repeat = false;
         } else {
             try {
-                double result = compute(expression);
-                mem[r[0]] = result;
-                cout << ">>" << result << endl;
+                result = compute(expression);
+                cout <<"[" <<r[0]<<"]";
+
+                if(!isskip){
+                    mem[r[0]] = result;
+                    cout << ":" << result << endl;
+                }
             } catch (const exception& e) {
                 cout << " 'Error: " << e.what() <<"'"<< endl;
                 r[0]--;
@@ -174,17 +193,26 @@ int main() {
 
 // TEST 1: .22*10 [!2]*(!3) !-2*!!-3 +2 1/2*33
 /*
-expr = .2>>0.2
-[2] :expr = [!2]*(!3)>>12
-[3] :expr = !-2*!!-3>>1440
-[4] :expr = +2>>2
-[5] :expr = 1/2*33>>16.5
-*/
-// TEST (|&)
-/*
-[1] :(1)&(1) (1)&(-1) (-1)&(1) (-1)&(-1)
->>1
-[2] :>>-1
-[3] :>>-1
-[4] :>>-1
+[1]? ~1 1 2 3 4 5
+[1]~[1]? [1]:1
+[2]? [2]:2
+[3]? [3]:3
+[4]? [4]:4
+[5]? [5]:5
+[6]? ~1
+[6]~[1]? ~1*2
+[1]~[2]? ~1*5
+[2]~[5]? ~11
+[5]~[11]? #1*#5
+[5]:5
+[6]? #2*#5
+[5]:10
+[6]? #2*#5+#1*0
+[1]:20
+[2]? ~1 [1] [2] [3] [4] [5]
+[2]~[1]? [1]:20
+[2]? [2]:2
+[3]? [3]:3
+[4]? [4]:4
+[5]? [5]:10
 */
