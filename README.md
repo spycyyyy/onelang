@@ -11,6 +11,7 @@ lang.exe
 ## W H A T
 * [X] Condensing everything on a single array (includes both condition block and memory block)
 * [X] Interact by typing commands into the block. (APL language)
+* [X] GOTO (move stack pointer), changing other memory block
 * [ ] accept other type list {} , string " " and loop .~.
 * [ ] express everything in the form a dictionary
 * [ ] figure out how to kick start the program
@@ -25,7 +26,10 @@ lang.exe
 | Comparison    | `>`, `<`                                                                    |
 | Logical       | `&`, `|`                                                                    |
 | Factorial     | `!`                                                                         |
-| Memory        | `[]`, `#` (These operators work by directly accessing everything on the list) |
+| Memory        | `[]`, `#` (directly accessing everything on the list) |
+| Pointer       | `~` (moving around the stack without changing anything) |
 
 ![image](https://github.com/user-attachments/assets/5b56553f-be40-423e-ac50-0260b1c2d161)
 ![image](https://github.com/user-attachments/assets/9fc56c2a-9947-4ed6-900a-c03a35b8e91a)
+![image](https://github.com/user-attachments/assets/39b5d115-36f7-4b87-a4af-7cf9a70ed4c2)
+
