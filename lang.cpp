@@ -8,7 +8,6 @@
 #include <cfloat> // Floating Point Constants (e.g., DBL_MAX, DBL_MIN)
 #include <climits> // Integer Constants (e.g., INT_MAX, INT_MIN)
 #include <algorithm>
-#include <regex>
 
 using namespace std;
 
@@ -28,12 +27,13 @@ double parseFactor(string expression, size_t& pos);
 double parseTerm(string expression, size_t& pos);
 double parseExpression(string expression, size_t& pos);
 double compute(string expression);
+double talk( string expression);
 
-string sym_expr = "+-<>&|";
-string sym_term = "*/^";
+string sym_expr = "=+-<>&|";
+string sym_term = "_*/^";
 string sym_fact = ".()#![]~{}";
 
-bool isskip = false;
+bool isskip = false; bool isinside = false;
 bool check(string format, char c){
     return format.find(c) != string::npos;
 }
@@ -58,14 +58,18 @@ double parseFactor(string expression, size_t& pos) {
 
     } else if (expression[pos] == '{') {
         pos++;
+        isinside = true;
         double result = parseExpression(expression, pos);
+        isinside = false;
         if (expression[pos] != '}') { throw runtime_error("Unbalanced parentheses"); }
         pos++;
 
         return result;
     } else if (expression[pos] == '[') {
         pos++;
+        isinside = true;
         double result = parseExpression(expression, pos);
+        isinside = false;
         if (expression[pos] != ']') { throw runtime_error("Unbalanced parentheses"); }
         if (result > m_size - 1 || result < 0)    { throw runtime_error("Register overflow.");}
         pos++;
@@ -73,7 +77,9 @@ double parseFactor(string expression, size_t& pos) {
         return mem[result];
     } else if (expression[pos] == '(') {
         pos++;
+        isinside = true;
         double result = parseExpression(expression, pos);
+        isinside = false;
         if (expression[pos] != ')') { throw runtime_error("Unbalanced parentheses"); }
         pos++;
 
@@ -106,12 +112,19 @@ double parseTerm(string expression, size_t& pos) {
     {
         char op = expression[pos++];
         double factor = parseFactor(expression, pos);
-        if (op == '*') { result *= factor;} 
-        else if (op == '/') {
-            if (factor == 0) {
-                throw runtime_error("Division by zero");
+        if(op == '_'){
+            int sign = (factor>result)? 1:-1;
+            int i = (int) result;
+            while(i!= (int) factor){
+                talk(to_string(i));
+                i+=sign;
             }
-            result /= factor;
+            result = factor;
+        }
+        else if (op == '*') {   result *= factor;} 
+        else if (op == '/') {
+            if (factor == 0)    throw runtime_error("Division by zero");
+                                result /= factor;
         } else if (op == '^') { result = pow(result, factor); }
     }
     return result;
@@ -124,15 +137,14 @@ double parseExpression(string expression, size_t& pos) {
     {
         char op = expression[pos++];
         double term = parseTerm(expression, pos);
-        if (op == '+')      { result += term;} 
-        else if (op == '-') { result -= term; } 
+        if (op == '=')      { return (result == term) ? 1 : -1;}
+        else if (op == '+') { return result + term;} 
+        else if (op == '-') { return result - term; } 
         else if (op == '&') { return ((result>0) && (term >0)) ? 1 : -1; } 
         else if (op == '|') { return ((result>0) || (term >0)) ? 1 : -1; } 
         else if (op == '>') { return (result > term) ? 1 : -1; }
         else if (op == '<') { return (result < term) ? 1 : -1; }
-
     }
-    return result;
 }
 
 // Function to calculate the result of a mathematical expression
@@ -140,7 +152,7 @@ double compute(string expression) {
     // Remove any whitespace from the expression
     
     expression.erase(remove(expression.begin(), expression.end(), ' '), expression.end());
-    //cout << "expr = " << expression;
+    cout << "expr = " << expression << endl;
     // Check if the expression contains any invalid characters
     for (int i = 0; i < expression.size(); i++) {
         char c = expression[i];
@@ -154,65 +166,41 @@ double compute(string expression) {
     return parseExpression(expression, pos);
 }
 
-int main() {
-    bool repeat = true; double result;
-    mem[0] = 255; // maximum size of memory
-    while (repeat) {  
-        // only move the stack pointer without changing the memory
-        if(isskip){
-            isskip = false;
-            cout << "~"; 
-            r[0] = result;
-        }
-        else{
-            r[0] ++;
-        }            
-        cout <<"[" <<r[0]<<"]? ";
-        string expression;
-        cin >> expression;
-        if (expression == "q") {
-            repeat = false;
-        } else {
-            try {
-                result = compute(expression);
-                cout <<"[" <<r[0]<<"]";
+double talk( string expression){
+    double result;
+    try {
+        result = compute(expression);
+        cout <<"[" <<r[0]<<"]";
 
-                if(!isskip){
-                    mem[r[0]] = result;
-                    cout << ":" << result << endl;
-                }
-            } catch (const exception& e) {
-                cout << " 'Error: " << e.what() <<"'"<< endl;
-                r[0]--;
-            }
+        if(!isskip){
+            mem[r[0]] = result;
+            cout << ":" << result << endl;
         }
+    } catch (const exception& e) {
+        cout << " 'Error: " << e.what() <<"'" << endl;
+        r[0]--;
+    } 
+
+    if(isskip){
+        isskip = false;
+        cout << "~"; 
+        r[0] = result;
+    }
+    else{
+        r[0] ++;
+    } 
+    cout <<"[" <<r[0]<<"]? ";
+}
+
+int main() {
+    mem[0] = 255; // maximum size of memory
+    cout << "Type '~[ptr::INT]' to start: ";
+    while (true) {  
+        double result; string expression;
+        // only move the stack pointer without changing the memory
+        cin >> expression;
+        talk(expression);
     }
     return 0;
 }
-// combine parseTerm and parseExpression to form one function that parse both expression when keeping the original precedence order, rename the new function parseToken
-
-// TEST 1: .22*10 [!2]*(!3) !-2*!!-3 +2 1/2*33
-/*
-[1]? ~1 1 2 3 4 5
-[1]~[1]? [1]:1
-[2]? [2]:2
-[3]? [3]:3
-[4]? [4]:4
-[5]? [5]:5
-[6]? ~1
-[6]~[1]? ~1*2
-[1]~[2]? ~1*5
-[2]~[5]? ~11
-[5]~[11]? #1*#5
-[5]:5
-[6]? #2*#5
-[5]:10
-[6]? #2*#5+#1*0
-[1]:20
-[2]? ~1 [1] [2] [3] [4] [5]
-[2]~[1]? [1]:20
-[2]? [2]:2
-[3]? [3]:3
-[4]? [4]:4
-[5]? [5]:10
-*/
+// 
